@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCM Global Time</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#fff;color:#202124;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",Arial,sans-serif;overflow:hidden}
+body{padding:6px 10px}
+.header{display:flex;align-items:center;margin-bottom:5px}
+.title{font-size:12px;font-weight:700;letter-spacing:.2px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(95px,1fr));border:1px solid #e5e7eb;border-radius:7px;overflow:hidden}
+.card{min-width:0;padding:7px 9px 6px;border-right:1px solid #e5e7eb;background:#fff}
+.card:last-child{border-right:0}
+.top{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.flag{font-size:14px;line-height:1}
+.site{font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+.time{font-size:21px;font-weight:650;line-height:1;margin-top:5px;font-variant-numeric:tabular-nums}
+.bottom{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:9.5px;color:#777;white-space:nowrap}
+.dot{width:6px;height:6px;border-radius:50%;background:#b9bec6;flex:none}
+.open .dot{background:#25a55f}
+.closed .dot{background:#d14b4b}
+@media(max-width:900px){
+.grid{grid-template-columns:repeat(4,1fr)}
+.card{border-bottom:1px solid #e5e7eb}
+}
+</style>
+</head>
+<body>
+<div class="header"><div class="title">🌐 GLOBAL SCM TIME</div></div>
+<div class="grid" id="grid"></div>
+<script>
+const sites=[
+{flag:"🇲🇽",site:"SAMEX",tz:"America/Tijuana"},
+{flag:"🇻🇳",site:"SEHC / CORE",tz:"Asia/Ho_Chi_Minh"},
+{flag:"🇧🇷",site:"SEDA",tz:"America/Manaus"},
+{flag:"🇪🇬",site:"SEEG",tz:"Africa/Cairo"},
+{flag:"🇮🇳",site:"SIEL",tz:"Asia/Kolkata"},
+{flag:"🇨🇳",site:"KTC",tz:"Asia/Shanghai"},
+{flag:"🇰🇷",site:"HQ",tz:"Asia/Seoul"}
+];
+
+function parts(now,tz){
+ const fmt=new Intl.DateTimeFormat("en-GB",{
+  timeZone:tz,month:"2-digit",day:"2-digit",
+  hour:"2-digit",minute:"2-digit",hourCycle:"h23",weekday:"short"
+ });
+ return Object.fromEntries(fmt.formatToParts(now).map(x=>[x.type,x.value]));
+}
+
+function render(){
+ const now=new Date(),grid=document.getElementById("grid");
+ grid.innerHTML=sites.map(s=>{
+  const p=parts(now,s.tz),h=Number(p.hour),open=h>=9&&h<18;
+  return `<div class="card ${open?"open":"closed"}">
+   <div class="top"><span class="flag">${s.flag}</span><span class="site">${s.site}</span></div>
+   <div class="time">${p.hour}:${p.minute}</div>
+   <div class="bottom"><span class="dot"></span><span>${p.month}/${p.day} ${p.weekday}</span></div>
+  </div>`;
+ }).join("");
+}
+render();
+setInterval(render,1000);
+</script>
+</body>
+</html>
